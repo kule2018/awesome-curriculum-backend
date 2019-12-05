@@ -1,7 +1,7 @@
 const mysql = require('../utils/mysql');
 const sendEmail = require('../utils/sendEmail');
 const genPassword = require('../utils/genPassword');
-
+const tokenUtils = require('../utils/tokenUtils');
 
 /**
  * @description 获取用户信息
@@ -11,27 +11,32 @@ let getUserInfo = async (ctx, next) => {
   const token = ctx.query.token;
   let res = {
     code: 1,
-    res: 'success',
+    message: 'success',
     data: []
   };
-  let _sql = `
-        select * from token
-        right join user on user.id=token.userid 
-        where value = '${token}'
+  let result = tokenUtils.verifyToken(token);
+  let { id } = result;
+  if (id) {
+    const _sql = `
+      select * from user
+      where id = '${id}'
     `;
-  await mysql.query(_sql).then(response => {
-    const oldTime = response[0].time;
-    const newTime = new Date().getTime();
-    if ((newTime - oldTime) / 1000 / 60 / 60 / 24 > 15) {
-      res.data.push({
-        name: response[0].name
-      });
-    } else {
-      res.code = -1;
-      res.res = '登录超时，请重新登录';
-    }
-  })
-  ctx.body = JSON.parse(JSON.stringify(res));
+    await mysql.query(_sql).then(response => {
+      if (response.length !== 0) {
+        res.data.push({
+          name: response[0].email
+        });
+      } else {
+        res.code = -1;
+        res.message = '登录超时，请重新登录';
+      }
+      return ctx.body = JSON.parse(JSON.stringify(res));
+    })
+  } else {
+    res.code = -1;
+    res.message = '登录超时，请重新登录';
+    return ctx.body = JSON.parse(JSON.stringify(res));
+  }
 }
 
 /**
@@ -140,11 +145,14 @@ let login = async (ctx, next) => {
     email='${data.email}' and password='${pass}';
   `;
   let response = await mysql.query(queryUser);
-  if(response.length === 0) {
+  if (response.length === 0) {
     res.code = 0;
     res.message = '用户名或密码错误';
     ctx.body = res;
-    return ;
+    return;
+  } else {
+    const token = tokenUtils.generateToken({ id: response[0].id });
+    res.token = token;
   }
   ctx.body = res;
 }
