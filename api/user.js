@@ -4,42 +4,6 @@ const genPassword = require('../utils/genPassword');
 const tokenUtils = require('../utils/tokenUtils');
 
 /**
- * @description 获取用户信息
- * @param {String} name
- */
-let getUserInfo = async (ctx, next) => {
-  const token = ctx.query.token;
-  let res = {
-    code: 1,
-    message: 'success',
-    data: []
-  };
-  let result = tokenUtils.verifyToken(token);
-  let { id } = result;
-  if (id) {
-    const _sql = `
-      select * from user
-      where id = '${id}'
-    `;
-    await mysql.query(_sql).then(response => {
-      if (response.length !== 0) {
-        res.data.push({
-          name: response[0].email
-        });
-      } else {
-        res.code = -1;
-        res.message = '登录超时，请重新登录';
-      }
-      return ctx.body = JSON.parse(JSON.stringify(res));
-    })
-  } else {
-    res.code = -1;
-    res.message = '登录超时，请重新登录';
-    return ctx.body = JSON.parse(JSON.stringify(res));
-  }
-}
-
-/**
  * @description 用户注册
  * @param {String} email
  */
@@ -158,7 +122,6 @@ let login = async (ctx, next) => {
 }
 
 module.exports = {
-  getUserInfo,
   registerCode,
   register,
   login
