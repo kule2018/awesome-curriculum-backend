@@ -1,5 +1,6 @@
 <p align="center"><img src="./readme-assets/logo.png"></p>
 <p align="center"><g-emoji class="g-emoji" alias="fire" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f525.png">🔥</g-emoji>课程助手后端</p>
+
 ## 项目说明
 
 截止目前我是一名计算机学院的大四学生，马上就要毕业，心想着能够做一些有利于学生的工具，于是就萌生了这个想法，做一个课程助手。
