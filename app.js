@@ -4,12 +4,13 @@ const router = require('./routes/index');
 const cors = require('koa2-cors');
 const bodyParser = require('koa-bodyparser');
 const tokenUtils = require('./utils/tokenUtils');
+const mysql = require('./utils/mysql');
 
 app.use(cors());
 app.use(async (ctx, next) => {
-  console.log('拦截成功');
+  console.log(`请求URL: ${ctx.url}`);
   const { url = '' } = ctx;
-  if (!url.includes('registerCode') && !url.includes('register') && !url.includes('login')) {
+  if (!url.includes('registerCode') && !url.includes('register') && !url.includes('login') && !url.includes('logout')) {
     let token = '';
     let res = {
       code: 0,
@@ -26,7 +27,13 @@ app.use(async (ctx, next) => {
     }
     let result = tokenUtils.verifyToken(token);
     let { id } = result;
-    if (id) {
+    const queryToken = `
+      select * from token
+      where
+      value = '${token}';
+    `;
+    let response = await mysql.query(queryToken);
+    if (response.length && id && response[0].userId===id) {
       ctx.state = id;
       await next();
     } else {
