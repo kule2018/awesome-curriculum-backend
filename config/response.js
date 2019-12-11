@@ -25,7 +25,7 @@ const tips = {
   },
   1005: {
     code: 1005,
-    message: ''
+    message: '没有此课程'
   },
   1006: {
     code: 1006,
