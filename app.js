@@ -22,7 +22,7 @@ app.use(morgan('combined', { stream: accessLogStream }))
 app.use(async (ctx, next) => {
   const { url = '' } = ctx;
   if (!url.includes('registerCode') && !url.includes('register') && !url.includes('login') && !url.includes('logout')) {
-    let token = ctx.cookies.get('CurriculumKey');
+    let token = JSON.parse(JSON.stringify(ctx.query)).token;
     if (!token) {
       return ctx.body = tips[0];
     }

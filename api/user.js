@@ -105,7 +105,7 @@ let login = async (ctx, next) => {
     `;
     await mysql.query(insertToken);
   }
-  ctx.body = res;
+  return ctx.body = res;
 }
 
 
