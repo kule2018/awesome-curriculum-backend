@@ -13,6 +13,7 @@ function generateToken(data) {
 }
 
 function verifyToken(token) {
+  let res = {}
   let cert = fs.readFileSync(path.join(__dirname, '../config/rsa_public_key.pem'));//公钥
   try {
     let result = jwt.verify(token, cert, { algorithms: ['RS256'] }) || {};

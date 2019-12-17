@@ -6,6 +6,11 @@ const bodyParser = require('koa-bodyparser');
 const tokenUtils = require('./utils/tokenUtils');
 const mysql = require('./utils/mysql');
 const tips = require('./config/response');
+const morgan = require('koa-morgan');
+const fs = require('fs');
+
+const accessLogStream = fs.createWriteStream(__dirname + '/access.log',{ flags: 'a' })
+
 
 app.use(cors({
   origin: 'http://localhost:3000',
@@ -13,8 +18,8 @@ app.use(cors({
   allowHeaders: ['Content-Type', 'Authorization', 'Accept'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 }));
+app.use(morgan('combined', { stream: accessLogStream }))
 app.use(async (ctx, next) => {
-  console.log(`请求URL: ${ctx.url}`);
   const { url = '' } = ctx;
   if (!url.includes('registerCode') && !url.includes('register') && !url.includes('login') && !url.includes('logout')) {
     let token = ctx.cookies.get('CurriculumKey');
