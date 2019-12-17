@@ -13,8 +13,7 @@ const accessLogStream = fs.createWriteStream(__dirname + '/access.log',{ flags: 
 
 
 app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true,
+  origin: '*',
   allowHeaders: ['Content-Type', 'Authorization', 'Accept'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 }));
