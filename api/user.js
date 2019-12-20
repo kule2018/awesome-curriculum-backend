@@ -11,6 +11,7 @@ const tips = require('../config/response');
 let registerCode = async (ctx, next) => {
   const data = ctx.request.body;
   const code = ~~(Math.random() * 1000000);
+  console.log(code)
   const queryUserSql = `
     select * from user
     where email = '${data.email}'
@@ -97,6 +98,8 @@ let login = async (ctx, next) => {
   } else {
     const token = tokenUtils.generateToken({ id: response[0].id });
     res.token = token;
+    res.username = response[0].name;
+    res.avatar = response[0].avatar;
     const insertToken = `
       insert into token
       (value, userId)
@@ -124,9 +127,24 @@ let logout = async (ctx, next) => {
   return ctx.body = tips[1];
 }
 
+let updateName = async (ctx, next) => {
+  console.log('修改')
+  const data = ctx.request.body;
+  const updateUser = `
+    update user
+    set
+    name='${data.name}'
+    where
+    id=${ctx.state}
+  `;
+  await mysql.query(updateUser);
+  return ctx.body = tips[1];
+}
+
 module.exports = {
   registerCode,
   register,
   login,
-  logout
+  logout,
+  updateName
 }
