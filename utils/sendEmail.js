@@ -72,7 +72,7 @@ const sendEmail = (to, verificationCode) => {
       </div>
     ` // html body
   };
-
+  
   // send mail with defined transport object
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
