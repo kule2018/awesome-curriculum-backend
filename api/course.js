@@ -94,7 +94,7 @@ let updateCourse = async (ctx, next) => {
   const updateCourseInfo = `
     update curriculum
     set
-    name='${data.name}', color='${data.color}'
+    name='${data.name}', color='${data.color}', teacherName='${data.teacherName}'
     where
     name='${oldName}' and userId=${ctx.state};
   `;
