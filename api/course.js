@@ -11,12 +11,13 @@ const mysql = require("../utils/mysql");
  */
 let addCourse = async (ctx, next) => {
   const data = ctx.request.body;
+  console.log('add', data);
   const userId = ctx.state;
   const insertCourse = `
     insert into curriculum
-    (name, week, start, time, userId, color)
+    (name, week, start, time, userId, color, teacherName, room)
     values
-    ('${data.name}', ${data.week}, ${data.start}, ${data.time}, ${userId}, '${data.color}');
+    ('${data.name}', ${data.week}, ${data.start}, ${data.time}, ${userId}, '${data.color}', '${data.teacherName}', '${data.room}');
   `;
   let response = await mysql.query(insertCourse);
   return (ctx.body = {
@@ -94,7 +95,7 @@ let updateCourse = async (ctx, next) => {
   const updateCourseInfo = `
     update curriculum
     set
-    name='${data.name}', color='${data.color}', teacherName='${data.teacherName}'
+    name='${data.name}', color='${data.color}', teacherName='${data.teacherName}', room='${data.room}'
     where
     name='${oldName}' and userId=${ctx.state};
   `;
