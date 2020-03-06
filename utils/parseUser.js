@@ -12,16 +12,22 @@ function cookieToJson(cookie) {
 }
 
 const parseUser = async(obj) => {
+    console.log('obj', obj.headers);
     if (!obj) {
+        console.log('判断用户对象为空');
         return;
     }
     let s = '';
     if (typeof obj === 'string') {
         s = obj;
     } else if (obj.headers && obj.headers.cookie) {
+        console.log(obj.headers.cookie);
         let cookies = cookieToJson(obj.headers.cookie);
         s = cookies.CurriculumKey;
+    } else {
+        return ;
     }
+    console.log(s);
     if (s) {
         let result = tokenUtils.verifyToken(s);
         let { id } = result;

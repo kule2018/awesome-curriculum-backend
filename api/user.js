@@ -81,6 +81,7 @@ let register = async (ctx, next) => {
  */
 let login = async (ctx, next) => {
   const data = ctx.request.body;
+  console.log(data);
   const pass = genPassword.genPassword(data.password);
   let res = {
     code: 1,
