@@ -13,16 +13,19 @@ let addCourse = async (ctx, next) => {
   const data = ctx.request.body;
   console.log('add', data);
   const userId = ctx.state;
-  const insertCourse = `
+  for(let item of data.timeList){
+    const insertCourse = `
     insert into curriculum
-    (name, week, start, time, userId, color, teacherName, room)
-    values
-    ('${data.name}', ${data.week}, ${data.start}, ${data.time}, ${userId}, '${data.color}', '${data.teacherName}', '${data.room}');
-  `;
-  let response = await mysql.query(insertCourse);
+      (name, week, start, time, userId, color, teacherName, room)
+      values
+      ('${data.name}', ${item.week}, ${item.start}, ${item.time}, ${userId}, '${data.color}', '${data.teacherName}', '${data.room}');
+    `;
+    await mysql.query(insertCourse);
+  }
+  
   return (ctx.body = {
     ...tips[1],
-    id: JSON.parse(JSON.stringify(response)).insertId
+    // id: JSON.parse(JSON.stringify(response)).insertId
   });
 };
 
@@ -80,26 +83,24 @@ let queryCourse = async (ctx, next) => {
  * @param {number} id
  */
 let updateCourse = async (ctx, next) => {
+  const userId = ctx.state;
   const data = ctx.request.body;
   console.log("update", data);
-  const queryCourseName = `
-    select * from curriculum
+  const deleteCourse = `
+    delete from curriculum
     where
-    id=${data.id} and userId=${ctx.state};
+    name='${data.name}' and userId=${userId}
   `;
-  let response = await mysql.query(queryCourseName);
-  if (!response.length) {
-    return (ctx.body = tips[1005]);
+  await mysql.query(deleteCourse);
+  for(let item of data.timeList){
+    const insertCourse = `
+      insert into curriculum
+      (name, week, start, time, userId, color, teacherName, room)
+      values
+      ('${data.name}', ${item.week}, ${item.start}, ${item.time}, ${userId}, '${data.color}', '${data.teacherName}', '${data.room}');
+    `;
+    await mysql.query(insertCourse);
   }
-  const oldName = response[0].name;
-  const updateCourseInfo = `
-    update curriculum
-    set
-    name='${data.name}', color='${data.color}', teacherName='${data.teacherName}', room='${data.room}'
-    where
-    name='${oldName}' and userId=${ctx.state};
-  `;
-  await mysql.query(updateCourseInfo);
   return (ctx.body = tips[1]);
 };
 
