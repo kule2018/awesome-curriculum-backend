@@ -14,6 +14,7 @@ router.post('/api/course/addCourse', api.course.addCourse)
 router.get('/api/course/queryCourse', api.course.queryCourse)
 router.post('/api/course/updateCourse', api.course.updateCourse)
 router.post('/api/course/deleteCourse', api.course.deleteCourse)
+router.get('/api/course/queryUpdateTime', api.course.queryUpdateTime)
 
 // 文件上传
 router.post('/api/file/uploadFile', api.file.upload)

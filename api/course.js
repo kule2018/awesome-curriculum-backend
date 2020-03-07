@@ -22,6 +22,7 @@ let addCourse = async (ctx, next) => {
     `;
     await mysql.query(insertCourse);
   }
+  await updateTime(userId);
   
   return (ctx.body = {
     ...tips[1],
@@ -54,6 +55,7 @@ let deleteCourse = async (ctx, next) => {
   } else {
     response = await mysql.query(deleteAll);
   }
+  await updateTime(userId);
   return ctx.body = tips[1];
 };
 
@@ -101,12 +103,68 @@ let updateCourse = async (ctx, next) => {
     `;
     await mysql.query(insertCourse);
   }
-  return (ctx.body = tips[1]);
+  await updateTime(userId);
+  return (ctx.body = {
+    ...tips[1]
+  });
 };
+
+
+/**
+ * @description 刷新更新数据的时间
+ * @param {number} userId 
+ */
+let updateTime = async (userId) => {
+  const time = +new Date();
+  const searchTime = `
+    select * from updateTime
+    where
+    userId=${userId};
+  `;
+  const updateTime = `
+    update updateTime
+    set time='${time}'
+    where userId=${userId};
+  `;
+  let users = await mysql.query(searchTime);
+  users = JSON.parse(JSON.stringify(users));
+  console.log(users);
+  let update = 0;
+  if(users.length != 0){
+    await mysql.query(updateTime);
+  }else{
+    await mysql.query(`
+      insert into updateTime
+      (userId, time)
+      values
+      (${userId}, '${time}');
+    `)
+  }
+}
+
+
+let queryUpdateTime = async (ctx, next) => {
+  const userId = ctx.state;
+  const query = `
+    select * from updateTime
+    where userId=${userId};
+  `;
+  let response = await mysql.query(query);
+  response = JSON.parse(JSON.stringify(response));
+  let time = 0;
+  if(response.length != 0){
+    time = response[0].time;
+  }
+  return (ctx.body = {
+    ...tips[1],
+    time
+  });
+}
 
 module.exports = {
   addCourse,
   queryCourse,
   updateCourse,
-  deleteCourse
+  deleteCourse,
+  queryUpdateTime
 };
