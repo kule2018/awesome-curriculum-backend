@@ -101,6 +101,7 @@ let login = async (ctx, next) => {
     res.token = token;
     res.username = response[0].name;
     res.avatar = response[0].avatar;
+    res.school = response[0].school;
     const insertToken = `
       insert into token
       (value, userId)
@@ -109,6 +110,7 @@ let login = async (ctx, next) => {
     `;
     await mysql.query(insertToken);
   }
+  console.log(res);
   return ctx.body = res;
 }
 
@@ -129,7 +131,6 @@ let logout = async (ctx, next) => {
 }
 
 let updateName = async (ctx, next) => {
-  console.log('修改')
   const data = ctx.request.body;
   const updateUser = `
     update user
@@ -142,10 +143,25 @@ let updateName = async (ctx, next) => {
   return ctx.body = tips[1];
 }
 
+
+let updateSchool = async (ctx, next) => {
+  const data = ctx.request.body;
+  const updateSchool = `
+    update user
+    set
+    school='${data.school}'
+    where
+    id=${ctx.state}
+  `;
+  await mysql.query(updateSchool);
+  return ctx.body = tips[1];
+}
+
 module.exports = {
   registerCode,
   register,
   login,
   logout,
-  updateName
+  updateName,
+  updateSchool
 }

@@ -16,9 +16,9 @@ let addCourse = async (ctx, next) => {
   for(let item of data.timeList){
     const insertCourse = `
     insert into curriculum
-      (name, week, start, time, userId, color, teacherName, room)
+      (name, week, start, time, userId, color, teacherName, room, courseNo)
       values
-      ('${data.name}', ${item.week}, ${item.start}, ${item.time}, ${userId}, '${data.color}', '${data.teacherName}', '${data.room}');
+      ('${data.name}', ${item.week}, ${item.start}, ${item.time}, ${userId}, '${data.color}', '${data.teacherName}', '${data.room}', '${data.courseNo}');
     `;
     await mysql.query(insertCourse);
   }
@@ -69,6 +69,10 @@ let queryCourse = async (ctx, next) => {
     userId=${ctx.state};
   `;
   let response = await mysql.query(queryAllCourse);
+  console.log({
+    ...tips[1],
+    data: JSON.parse(JSON.stringify(response))
+  });
   return (ctx.body = {
     ...tips[1],
     data: JSON.parse(JSON.stringify(response))
@@ -97,9 +101,9 @@ let updateCourse = async (ctx, next) => {
   for(let item of data.timeList){
     const insertCourse = `
       insert into curriculum
-      (name, week, start, time, userId, color, teacherName, room)
+      (name, week, start, time, userId, color, teacherName, room, courseNo)
       values
-      ('${data.name}', ${item.week}, ${item.start}, ${item.time}, ${userId}, '${data.color}', '${data.teacherName}', '${data.room}');
+      ('${data.name}', ${item.week}, ${item.start}, ${item.time}, ${userId}, '${data.color}', '${data.teacherName}', '${data.room}', '${data.courseNo}');
     `;
     await mysql.query(insertCourse);
   }

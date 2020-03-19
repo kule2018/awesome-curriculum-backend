@@ -7,6 +7,7 @@ router.post('/api/user/register', api.user.register)
 router.post('/api/user/login', api.user.login)
 router.get('/api/user/logout', api.user.logout)
 router.post('/api/user/updateName', api.user.updateName)
+router.post('/api/user/updateSchool', api.user.updateSchool)
 
 
 // 课程相关api
