@@ -91,11 +91,17 @@ let queryCourse = async (ctx, next) => {
 let updateCourse = async (ctx, next) => {
   const userId = ctx.state;
   const data = ctx.request.body;
+  const queryOldName = `
+    select *
+    from curriculum
+    where id=${data.id};
+  `;
+  let oldName = await mysql.query(queryOldName);
   console.log("update", data);
   const deleteCourse = `
     delete from curriculum
     where
-    name='${data.name}' and userId=${userId}
+    name='${oldName[0].name}' and userId=${userId}
   `;
   await mysql.query(deleteCourse);
   for(let item of data.timeList){
