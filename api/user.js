@@ -45,9 +45,9 @@ let register = async (ctx, next) => {
   `;
   const creatUser = `
     insert into user
-    (name, email, password)
+    (name, email, password, school)
     values
-    ('用户', '${data.email}', '${pass}');
+    ('用户', '${data.email}', '${pass}', '世界某大学');
   `;
   const queryUserSql = `
     select * from user
