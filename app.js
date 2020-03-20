@@ -9,12 +9,11 @@ const tips = require('./config/response');
 const morgan = require('koa-morgan');
 const fs = require('fs');
 const parseUser = require('./utils/parseUser');
-const path = require('path');
 const koaBody = require('koa-body');
-// 导入WebSocket模块:
-const WebSocket = require('ws');
-// 引用Server类:
-const WebSocketServer = WebSocket.Server;
+const cookie = require('cookie');
+const socketConnect = require('./socket/index')
+
+const io = require('socket.io')(3002);
 
 
 const accessLogStream = fs.createWriteStream(__dirname + '/access.log', { flags: 'a' })
@@ -33,6 +32,7 @@ app.use(koaBody({
 }));
 app.use(async (ctx, next) => {
   const { url = '' } = ctx;
+  console.log(url);
   if (!url.includes('registerCode') && !url.includes('register') && !url.includes('login') && !url.includes('logout')) {
     let token = JSON.parse(JSON.stringify(ctx.query)).token;
     if (!token) {
@@ -63,18 +63,4 @@ app.use(morgan('combined', { stream: accessLogStream }))
 
 app.listen(3001);
 
-
-let wss = new WebSocketServer({
-  port: 3002
-});
-
-wss.on('connection', async (ws, req) => {
-  parseUser(req).then(response => {
-    const userId = response;
-    console.log(`userId:${userId}的用户登录成功`);
-    if (!userId) {
-      ws.close(4001, 'invalid user');
-    }
-  });
-});
-
+socketConnect(io);
