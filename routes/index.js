@@ -20,5 +20,8 @@ router.get('/api/course/queryUpdateTime', api.course.queryUpdateTime)
 // 文件上传
 router.post('/api/file/uploadFile', api.file.upload)
 
+// 信息相关api
+router.post('/api/message/queryHistoryMessage', api.message.queryHistoryMessage)
+
 
 module.exports = router

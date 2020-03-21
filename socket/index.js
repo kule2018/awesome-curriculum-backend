@@ -1,18 +1,46 @@
 const mysql = require('../utils/mysql');
-let socket;
+const moment = require('moment')
 
-const bindUserSocket = async() => {
+const bindUserSocket = async(socket) => {
+  const queryUser = `
+    select userId, user.avatar, user.name
+    from token, user
+    where
+    token.userId=user.id and value='${socket.token}';
+  `;
+  let response = await mysql.query(queryUser);
+  socket.userId = response[0].userId;
+  socket.username = response[0].name;
+  socket.avatar = response[0].avatar;
+}
+/**
+ * @deprecated 将聊天记录存入数据库
+ */
+const saveMessage = async(token, content, groupId) => {
   const queryUser = `
     select userId
     from token
     where
-    value='${socket.token}';
+    value='${token}';
   `;
-  let response = await mysql.query(queryUser);
-  socket.userId = response[0].userId;
-  console.log(response[0].userId);
+  let res = await mysql.query(queryUser);
+  const userId = res[0].userId;
+  const insertMysql = `
+    insert into message
+    (content, fromUser, toGroup, time)
+    values
+    ('${content}', ${userId}, ${groupId}, '${moment(new Date()).format('YYYY-MM-DD HH:mm:ss')}');
+  `;
+  res = await mysql.query(insertMysql);
+  return res.insertId;
 }
 
+/**
+ * @deprecated 查找groupId
+ * @param {string} school 
+ * @param {string} name 
+ * @param {string} courseNo 
+ */
 const findGroup = async(school, name, courseNo) => {
   const queryGroup = `
     select *
@@ -24,7 +52,13 @@ const findGroup = async(school, name, courseNo) => {
   return res[0].id;
 }
 
-const createGroup = async(groups, school) =>{
+/**
+ * @deprecated 创建群组
+ * @param {array} groups 
+ * @param {string} school 
+ * @param {object} socket 
+ */
+const createGroup = async(groups, school, socket) =>{
   for(const group of groups){
     const queryGroup = `
       select *
@@ -43,24 +77,25 @@ const createGroup = async(groups, school) =>{
       await mysql.query(insertGroup);
     }
     res = await mysql.query(queryGroup);
-    console.log(typeof(res[0].id))
     socket.join(res[0].id.toString(), () => {
       console.log('rooms', socket.rooms);
     });
   }
 }
 
+/**
+ * @deprecated socket连接
+ * @param {object} io 
+ */
 const socketConnect = (io) => {
-  io.on('connection',_socket => {
-    socket=_socket;
+  io.on('connection',socket => {
     socket.emit('open');  // 通知客户端已连接
-    console.log(`客户端已连接，socket.id为：${socket.id}`);
     socket.socketId = socket.id;
     // 绑定socket-id与user-id
     socket.on('binding', async data => {
       socket.token = data.from;
-      await bindUserSocket();
-      await createGroup(data.groups, data.school)
+      await bindUserSocket(socket);
+      await createGroup(data.groups, data.school, socket)
       console.log('绑定成功');
     })
   
@@ -70,12 +105,30 @@ const socketConnect = (io) => {
     })
   
     socket.on('send message', async(data) => {
-      console.log(`后端收到${data.from}发来的消息：${data.content}`)
       let res = await findGroup(data.school, data.to.name, data.to.courseNo);
+      const insertId = await saveMessage(data.from, data.content, res);
       console.log('房间号', res);
-      _socket.to(res).emit('broadcast message', {
-        content: `${data.content}`,
-        courseName: data.to.name
+      socket.to(res).emit('broadcast message', {
+        self: false,
+        id: insertId,
+        content: data.content,
+        courseName: data.to.name,
+        time: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+        from: {
+          username: socket.username,
+          avatar: 'https://coursehelper.online:3000/'+socket.avatar,
+        }
+      });
+      io.to(socket.id).emit('broadcast message', {
+        self: true,
+        id: insertId,
+        content: data.content,
+        courseName: data.to.name,
+        time: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+        from: {
+          username: socket.username,
+          avatar: 'https://coursehelper.online:3000/'+socket.avatar,
+        }
       });
     })
   })
