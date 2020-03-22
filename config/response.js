@@ -29,7 +29,7 @@ const tips = {
   },
   1006: {
     code: 1006,
-    message: ''
+    message: '请不要输入空内容'
   },
   1007: {
     code: 1007,

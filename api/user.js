@@ -132,6 +132,9 @@ let logout = async (ctx, next) => {
 
 let updateName = async (ctx, next) => {
   const data = ctx.request.body;
+  if(data.name.trim().length===0){
+    return ctx.body = tips[1006];
+  }
   const updateUser = `
     update user
     set
@@ -146,6 +149,9 @@ let updateName = async (ctx, next) => {
 
 let updateSchool = async (ctx, next) => {
   const data = ctx.request.body;
+  if(data.school.trim().length===0){
+    return ctx.body = tips[1006];
+  }
   const updateSchool = `
     update user
     set
