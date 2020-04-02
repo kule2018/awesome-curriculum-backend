@@ -13,13 +13,18 @@ let addCourse = async (ctx, next) => {
   const data = ctx.request.body;
   console.log('add', data);
   const userId = ctx.state;
-  for(let item of data.timeList){
+  let timeList = data.timeList;
+  if(typeof timeList=='string'){
+    timeList = JSON.parse(timeList);
+  }
+  for(let item of timeList){
     const insertCourse = `
     insert into curriculum
       (name, week, start, time, userId, color, teacherName, room, courseNo)
       values
-      ('${data.name}', ${item.week}, ${item.start}, ${item.time}, ${userId}, '${data.color}', '${data.teacherName}', '${data.room}', '${data.courseNo}');
+      ('${data.name}', ${item.week}, ${item.start}, ${item.time}, ${userId}, '${data.color}', '${data.teacherName}', '${data.room}', '${data.courseNo==''?'000':data.courseNo}');
     `;
+    console.log(insertCourse);
     await mysql.query(insertCourse);
   }
   await updateTime(userId);
@@ -91,20 +96,24 @@ let queryCourse = async (ctx, next) => {
 let updateCourse = async (ctx, next) => {
   const userId = ctx.state;
   const data = ctx.request.body;
+  console.log("update", data);
   const queryOldName = `
     select *
     from curriculum
     where id=${data.id};
   `;
   let oldName = await mysql.query(queryOldName);
-  console.log("update", data);
   const deleteCourse = `
     delete from curriculum
     where
     name='${oldName[0].name}' and userId=${userId}
   `;
+  let timeList = data.timeList;
+  if(typeof timeList=='string'){
+    timeList = JSON.parse(timeList);
+  }
   await mysql.query(deleteCourse);
-  for(let item of data.timeList){
+  for(let item of timeList){
     const insertCourse = `
       insert into curriculum
       (name, week, start, time, userId, color, teacherName, room, courseNo)
