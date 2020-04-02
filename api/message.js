@@ -36,6 +36,7 @@ let queryHistoryMessage = async (ctx, next) => {
     }
     messages.reverse();
   }else{
+    console.log('asasas')
     const courseList = data.data;
     console.log(courseList);
     for(const course of courseList){
