@@ -5,7 +5,8 @@ var pool = mysql.createPool({
   host: config.HOST,
   user: config.USERNAME,
   password: config.PASSWORD,
-  database: config.DATABASE
+  database: config.DATABASE,
+  charset : 'utf8mb4'
 });
 
 let query = function (sql, values) {
