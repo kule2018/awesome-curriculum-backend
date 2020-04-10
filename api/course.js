@@ -11,7 +11,6 @@ const mysql = require("../utils/mysql");
  */
 let addCourse = async (ctx, next) => {
   const data = ctx.request.body;
-  console.log('add', data);
   const userId = ctx.state;
   let timeList = data.timeList;
   if(typeof timeList=='string'){
@@ -24,7 +23,6 @@ let addCourse = async (ctx, next) => {
       values
       ('${data.name}', ${item.week}, ${item.start}, ${item.time}, ${userId}, '${data.color}', '${data.teacherName}', '${data.room}', '${data.courseNo==''?'000':data.courseNo}');
     `;
-    console.log(insertCourse);
     await mysql.query(insertCourse);
   }
   await updateTime(userId);
@@ -74,10 +72,6 @@ let queryCourse = async (ctx, next) => {
     userId=${ctx.state};
   `;
   let response = await mysql.query(queryAllCourse);
-  console.log({
-    ...tips[1],
-    data: JSON.parse(JSON.stringify(response))
-  });
   return (ctx.body = {
     ...tips[1],
     data: JSON.parse(JSON.stringify(response))

@@ -2,12 +2,13 @@ const tips = require("../config/response");
 const mysql = require("../utils/mysql");
 
 /**
- * @queryHistoryMessage 获取历史信息
+ * @deprecated 获取历史信息
  */
-let queryHistoryMessage = async (ctx, next) => {
+const queryHistoryMessage = async (ctx, next) => {
   const data = ctx.request.body;
   let messages = [];
   if(data.id != 0){
+    data.id = parseInt(data.id);
     const queryGroupId = `
       select toGroup
       from message
@@ -36,7 +37,6 @@ let queryHistoryMessage = async (ctx, next) => {
     }
     messages.reverse();
   }else{
-    console.log('asasas')
     const courseList = data.data;
     console.log(courseList);
     for(const course of courseList){
@@ -74,6 +74,76 @@ let queryHistoryMessage = async (ctx, next) => {
   });
 };
 
+/**
+ * @deprecated 根据课程信息与学校获得历史消息
+ * @param {*} ctx 
+ * @param {*} next 
+ */
+const queryHistoryMessageByCourse = async(ctx, next) => {
+  
+  const data = ctx.request.body;
+  const school = data.school;
+  const courseName = data.courseName;
+  const courseNo = data.courseNo;
+
+  console.log(data)
+
+
+  const queryGroupMessage = `
+    select message.id, message.time, user.name, user.avatar, message.content, message.fromUser
+    from message, user, groups
+    where user.id=message.fromUser and message.toGroup=groups.id and groups.name='${courseName}' and groups.school='${school}' and groups.courseNo='${courseNo}'
+    order by message.id DESC limit 20;
+  `;
+
+  let returnData = [];
+  const response = await mysql.query(queryGroupMessage);
+  for(let item of JSON.parse(JSON.stringify(response))){
+    returnData.push({
+      self: item.fromUser==ctx.state,
+      content: item.content,
+      username: item.name,
+      avatar: `https://coursehelper.online:3000/${item.avatar}`,
+      id: item.id,
+      time: item.time
+    })
+  }
+
+  return ctx.body = {
+    data: returnData,
+    ...tips[1]
+  }
+}
+
+
+const checkMessageSendByMyself = async(ctx, next) => {
+  
+  const data = ctx.request.body;
+  const id = data.id;
+
+  const query = `
+    select fromUser
+    from message
+    where id=${id} and fromUser=${ctx.state};
+  `;
+  const response = await mysql.query(query);
+  if(response.length==0){
+    return ctx.body = {
+      res: false,
+      ...tips[1]
+    }
+  }else{
+    return ctx.body = {
+      res: true,
+      ...tips[1]
+    }
+  }
+
+
+}
+
 module.exports = {
   queryHistoryMessage,
+  queryHistoryMessageByCourse,
+  checkMessageSendByMyself
 }

@@ -84,10 +84,26 @@ const createGroup = async(groups, school, socket) =>{
 }
 
 /**
+ * @description 查找用户课程列表
+ * @param {String} token 
+ */
+const queryCourseList = async(token) => {
+  const query = `
+    select name, courseNo
+    from curriculum, token
+    where curriculum.userId=token.userId and token.value='${token}' and courseNo!='';
+  `;
+  let response = await mysql.query(query);
+  console.log('token', token)
+  return response;
+}
+
+/**
  * @deprecated socket连接
- * @param {object} io 
+ * @param {object} io
  */
 const socketConnect = (io) => {
+
   io.on('connection',socket => {
     socket.emit('open');  // 通知客户端已连接
     socket.socketId = socket.id;
@@ -95,7 +111,8 @@ const socketConnect = (io) => {
     socket.on('binding', async data => {
       socket.token = data.from;
       await bindUserSocket(socket);
-      await createGroup(data.groups, data.school, socket)
+      const groups = await queryCourseList(data.from);
+      await createGroup(groups, data.school, socket)
       console.log('绑定成功');
     })
   
@@ -103,11 +120,18 @@ const socketConnect = (io) => {
     socket.on('disconnect', () => {
       console.log('客户端已断开连接');
     })
+    // var roster = io.sockets.clients("rooms");
+    // console.log(roster)
+    // for (let i in roster)
+    // {
+    //   console.log('Username: ' + roster[i]);   
+    // }
   
     socket.on('send message', async(data) => {
       let res = await findGroup(data.school, data.to.name, data.to.courseNo);
       const insertId = await saveMessage(data.from, data.content, res);
       console.log('房间号', res);
+      
       socket.to(res).emit('broadcast message', {
         self: false,
         id: insertId,

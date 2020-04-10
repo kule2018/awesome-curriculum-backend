@@ -22,6 +22,8 @@ router.post('/api/file/uploadFile', api.file.upload)
 
 // 信息相关api
 router.post('/api/message/queryHistoryMessage', api.message.queryHistoryMessage)
+router.post('/api/message/queryHistoryMessageByCourse', api.message.queryHistoryMessageByCourse)
+router.post('/api/message/checkMessageSendByMyself', api.message.checkMessageSendByMyself)
 
 
 module.exports = router
