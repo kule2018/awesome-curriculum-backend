@@ -16,7 +16,7 @@ const queryHistoryMessage = async (ctx, next) => {
     `;
     let response = await mysql.query(queryGroupId);
     const queryAllMessage = `
-      select message.id, message.time, user.name, user.avatar, message.content, message.fromUser
+      select message.id, message.time, user.name, user.avatar, message.content, message.fromUser, message.type
       from message, user
       where user.id=message.fromUser and message.id<${data.id} and message.toGroup=${response[0].toGroup}
       order by message.id DESC limit 20;
@@ -26,6 +26,7 @@ const queryHistoryMessage = async (ctx, next) => {
     for(let item of JSON.parse(JSON.stringify(response))){
       messages.push({
         self: item.fromUser==ctx.state,
+        type: item.type,
         content: item.content,
         from: {
           username: item.name,
@@ -45,7 +46,7 @@ const queryHistoryMessage = async (ctx, next) => {
         data: []
       }
       const queryGroupMessage = `
-        select message.id, message.time, user.name, user.avatar, message.content, message.fromUser
+        select message.id, message.time, user.name, user.avatar, message.content, message.fromUser, message.type
         from message, user, groups
         where user.id=message.fromUser and message.toGroup=groups.id and groups.name='${course.name}' and groups.school='${data.school}' and groups.courseNo='${course.courseNo}'
         order by message.id DESC limit 20;
@@ -54,6 +55,7 @@ const queryHistoryMessage = async (ctx, next) => {
       for(let item of JSON.parse(JSON.stringify(response))){
         groupMessage.data.push({
           self: item.fromUser==ctx.state,
+          type: item.type,
           content: item.content,
           from: {
             username: item.name,
@@ -86,11 +88,9 @@ const queryHistoryMessageByCourse = async(ctx, next) => {
   const courseName = data.courseName;
   const courseNo = data.courseNo;
 
-  console.log(data)
-
 
   const queryGroupMessage = `
-    select message.id, message.time, user.name, user.avatar, message.content, message.fromUser
+    select message.id, message.time, user.name, user.avatar, message.content, message.fromUser, message.type
     from message, user, groups
     where user.id=message.fromUser and message.toGroup=groups.id and groups.name='${courseName}' and groups.school='${school}' and groups.courseNo='${courseNo}'
     order by message.id DESC limit 20;
@@ -101,6 +101,7 @@ const queryHistoryMessageByCourse = async(ctx, next) => {
   for(let item of JSON.parse(JSON.stringify(response))){
     returnData.push({
       self: item.fromUser==ctx.state,
+      type: item.type,
       content: item.content,
       username: item.name,
       avatar: `https://coursehelper.online:3000/${item.avatar}`,

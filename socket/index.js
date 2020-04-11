@@ -16,7 +16,7 @@ const bindUserSocket = async(socket) => {
 /**
  * @deprecated 将聊天记录存入数据库
  */
-const saveMessage = async(token, content, groupId) => {
+const saveMessage = async(token, content, groupId, type) => {
   const queryUser = `
     select userId
     from token
@@ -27,9 +27,9 @@ const saveMessage = async(token, content, groupId) => {
   const userId = res[0].userId;
   const insertMysql = `
     insert into message
-    (content, fromUser, toGroup, time)
+    (content, fromUser, toGroup, time, type)
     values
-    ('${content}', ${userId}, ${groupId}, '${moment(new Date()).format('YYYY-MM-DD HH:mm:ss')}');
+    ('${content}', ${userId}, ${groupId}, '${moment(new Date()).format('YYYY-MM-DD HH:mm:ss')}', '${type}');
   `;
   res = await mysql.query(insertMysql);
   return res.insertId;
@@ -120,20 +120,15 @@ const socketConnect = (io) => {
     socket.on('disconnect', () => {
       console.log('客户端已断开连接');
     })
-    // var roster = io.sockets.clients("rooms");
-    // console.log(roster)
-    // for (let i in roster)
-    // {
-    //   console.log('Username: ' + roster[i]);   
-    // }
   
     socket.on('send message', async(data) => {
       let res = await findGroup(data.school, data.to.name, data.to.courseNo);
-      const insertId = await saveMessage(data.from, data.content, res);
-      console.log('房间号', res);
+      console.log(data)
+      const insertId = await saveMessage(data.from, data.content, res, data.type);
       
       socket.to(res).emit('broadcast message', {
         self: false,
+        type: data.type || 'text',
         id: insertId,
         content: data.content,
         courseName: data.to.name,
@@ -146,6 +141,7 @@ const socketConnect = (io) => {
       io.to(socket.id).emit('broadcast message', {
         self: true,
         id: insertId,
+        type: data.type || 'text',
         content: data.content,
         courseName: data.to.name,
         time: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
