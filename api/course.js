@@ -174,10 +174,41 @@ let queryUpdateTime = async (ctx, next) => {
   });
 }
 
+const autoImportCourse = async (ctx, next) => {
+  const userId = ctx.state;
+  const data = ctx.request.body;
+  console.log(data);
+  const deleteCourse = `
+    delete from curriculum
+    where userId='${userId}'
+  `;
+  if(data.courseList.length === 0){
+    return ctx.body = {
+      ...tips[1007]
+    }
+  }
+  await mysql.query(deleteCourse);
+  const courseList = JSON.parse(data.courseList);
+  for(let item of courseList){
+    const insertCourse = `
+      insert into curriculum
+      (name, week, start, time, userId, color, teacherName, room, courseNo)
+      values
+      ('${item.name}', ${item.week}, ${item.start}, ${item.time}, ${userId}, '${item.color}', '${item.teacherName}', '${item.room}', '${item.courseNo==''?'000':item.courseNo}');
+    `;
+    await mysql.query(insertCourse);
+  }
+  await updateTime(userId);
+  return (ctx.body = {
+    ...tips[1]
+  });
+}
+
 module.exports = {
   addCourse,
   queryCourse,
   updateCourse,
   deleteCourse,
-  queryUpdateTime
+  queryUpdateTime,
+  autoImportCourse
 };

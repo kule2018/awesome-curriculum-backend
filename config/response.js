@@ -33,7 +33,7 @@ const tips = {
   },
   1007: {
     code: 1007,
-    message: ''
+    message: '课程参数为空'
   },
   1008: {
     c8ode: 1008,
