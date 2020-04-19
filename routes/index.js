@@ -17,6 +17,10 @@ router.post('/api/course/updateCourse', api.course.updateCourse)
 router.post('/api/course/deleteCourse', api.course.deleteCourse)
 router.get('/api/course/queryUpdateTime', api.course.queryUpdateTime)
 router.post('/api/course/autoImportCourse', api.course.autoImportCourse)
+router.post('/api/course/searchCourse', api.course.searchCourse)
+router.post('/api/course/deleteFavorite', api.course.deleteFavorite)
+router.post('/api/course/collectCourse', api.course.collectCourse)
+router.post('/api/course/favoriteCourse', api.course.favoriteCourse)
 
 // 文件上传
 router.post('/api/file/uploadFile', api.file.upload)

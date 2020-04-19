@@ -204,11 +204,123 @@ const autoImportCourse = async (ctx, next) => {
   });
 }
 
+const searchCourse = async(ctx, next) => {
+  const userId = ctx.state;
+  const data = ctx.request.body;
+  if(!data.page){
+    return ctx.body = {
+      ...tips[1008]
+    }
+  }
+  const query = `select * from webCourses where name like '%${data.content}%' order by name limit ${20*(data.page-1)}, 20;`;
+  let response = await mysql.query(query);
+  response = JSON.parse(JSON.stringify(response));
+  let d = [];
+  for(const item of response){
+    const sql = `
+      select * from favorite
+      where userId=${userId} and courseId=${item.id};
+    `;
+    const r = await mysql.query(sql);
+    d.push({
+      ...item,
+      favorite: r.length!==0
+    })
+  }
+  return (ctx.body = {
+    ...tips[1],
+    data: d
+  });
+}
+
+const collectCourse = async(ctx, next) => {
+  const userId = ctx.state;
+  const data = ctx.request.body;
+  const courseId = data.courseId;
+
+  const insertFavorite = `
+    insert into favorite
+    (userId, courseId)
+    values
+    (${userId}, ${courseId});
+  `;
+
+  const queryFavorite = `
+    select * from favorite
+    where userId=${userId} and courseId=${courseId};
+  `;
+
+  const res = await mysql.query(queryFavorite);
+  if(res.length != 0){
+    return ctx.body = {
+      ...tips[1009]
+    }
+  }else{
+    await mysql.query(insertFavorite);
+    return ctx.body = {
+      ...tips[1]
+    }
+  }
+}
+
+const deleteFavorite = async(ctx, next) => {
+  const userId = ctx.state;
+  const data = ctx.request.body;
+  const courseId = data.courseId;
+  const queryFavorite = `
+    select * from favorite
+    where userId=${userId} and courseId=${courseId};
+  `;
+  const delFavorite = `
+    delete from favorite
+    where userId=${userId} and courseId=${courseId};
+  `;
+
+  const res = await mysql.query(queryFavorite);
+  if(res.length == 0){
+    return ctx.body = {
+      ...tips[1010]
+    }
+  }else{
+    await mysql.query(delFavorite);
+    return ctx.body = {
+      ...tips[1]
+    }
+  }
+}
+
+const favoriteCourse = async(ctx, next) => {
+  const userId = ctx.state;
+  const datas = ctx.request.body;
+  const page = datas.page;
+
+  const queryFavorite = `
+    select * from favorite, webCourses
+    where favorite.courseId=webCourses.id and userId=${userId} order by name limit ${20*(page-1)}, 20;
+  `;
+  const res = await mysql.query(queryFavorite);
+  let data = [];
+  for(const item of res){
+    data.push({
+      ...item,
+      favorite: true
+    })
+  }
+  return ctx.body = {
+    ...tips[1],
+    data
+  };
+}
+
 module.exports = {
   addCourse,
   queryCourse,
   updateCourse,
   deleteCourse,
   queryUpdateTime,
-  autoImportCourse
+  autoImportCourse,
+  searchCourse,
+  collectCourse,
+  deleteFavorite,
+  favoriteCourse
 };

@@ -37,15 +37,15 @@ const tips = {
   },
   1008: {
     c8ode: 1008,
-    message: ''
+    message: '请传入页码'
   },
   1009: {
     code: 1009,
-    message: ''
+    message: '已收藏此课程'
   },
   1010: {
     code: 1010,
-    message: ''
+    message: '此课程不在您的收藏列表中'
   }
 }
 
