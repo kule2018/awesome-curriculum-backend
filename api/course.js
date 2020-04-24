@@ -74,7 +74,8 @@ let queryCourse = async (ctx, next) => {
   let response = await mysql.query(queryAllCourse);
   return (ctx.body = {
     ...tips[1],
-    data: JSON.parse(JSON.stringify(response))
+    data: JSON.parse(JSON.stringify(response)),
+    label: ctx.label
   });
 };
 

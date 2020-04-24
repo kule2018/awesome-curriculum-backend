@@ -30,5 +30,9 @@ router.post('/api/message/queryHistoryMessage', api.message.queryHistoryMessage)
 router.post('/api/message/queryHistoryMessageByCourse', api.message.queryHistoryMessageByCourse)
 router.post('/api/message/checkMessageSendByMyself', api.message.checkMessageSendByMyself)
 
+//推荐系统相关api
+router.get('/api/recommend/queryLabel', api.recommend.queryLabel)
+router.post('/api/recommend/submitUserLabel', api.recommend.submitUserLabel)
+
 
 module.exports = router

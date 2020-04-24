@@ -48,6 +48,12 @@ app.use(async (ctx, next) => {
     let response = await mysql.query(queryToken);
     if (response.length && id && response[0].userId === id) {
       ctx.state = id;
+      const userInfo = `
+        select * from user
+        where id=${id};
+      `;
+      const u = await mysql.query(userInfo);
+      ctx.label = u[0].label==1 ? true : false;
       await next();
     } else {
       return ctx.body = tips[0];
