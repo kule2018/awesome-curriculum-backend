@@ -251,6 +251,12 @@ const collectCourse = async(ctx, next) => {
     where userId=${userId} and courseId=${courseId};
   `;
 
+  const increaseCollectNum = `
+    update webCourses
+    set collectionNum=collectionNum+1
+    where id=${courseId};
+  `;
+
   const res = await mysql.query(queryFavorite);
   if(res.length != 0){
     return ctx.body = {
@@ -258,10 +264,52 @@ const collectCourse = async(ctx, next) => {
     }
   }else{
     await mysql.query(insertFavorite);
+    await mysql.query(increaseCollectNum);
     return ctx.body = {
       ...tips[1]
     }
   }
+}
+
+const clickCourse = async(ctx, next) => {
+  const userId = ctx.state;
+  const data = ctx.request.body;
+  const courseId = data.courseId;
+  const insertClick = `
+    insert into clickLog
+    (userId, courseId, count)
+    values
+    (${userId}, ${courseId}, 1);
+  `;
+
+  const queryClick = `
+    select * from clickLog
+    where userId=${userId} and courseId=${courseId};
+  `;
+
+  const increaseClickNum = `
+    update webCourses
+    set clickNum=clickNum+1
+    where id=${courseId};
+  `;
+
+  const increaseUserClick = `
+    update clickLog
+    set count=count+1
+    where userId=${userId} and courseId=${courseId}
+  `;
+
+  const res = await mysql.query(queryClick);
+  if(res.length != 0){
+    await mysql.query(increaseUserClick);
+  }else{
+    await mysql.query(insertClick);
+  }
+  await mysql.query(increaseClickNum);
+  return ctx.body = {
+    ...tips[1]
+  }
+
 }
 
 const deleteFavorite = async(ctx, next) => {
@@ -323,5 +371,6 @@ module.exports = {
   searchCourse,
   collectCourse,
   deleteFavorite,
-  favoriteCourse
+  favoriteCourse,
+  clickCourse
 };

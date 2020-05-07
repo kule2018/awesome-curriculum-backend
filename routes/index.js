@@ -21,6 +21,7 @@ router.post('/api/course/searchCourse', api.course.searchCourse)
 router.post('/api/course/deleteFavorite', api.course.deleteFavorite)
 router.post('/api/course/collectCourse', api.course.collectCourse)
 router.post('/api/course/favoriteCourse', api.course.favoriteCourse)
+router.post('/api/course/clickCourse', api.course.clickCourse)
 
 // 文件上传
 router.post('/api/file/uploadFile', api.file.upload)
@@ -33,6 +34,7 @@ router.post('/api/message/checkMessageSendByMyself', api.message.checkMessageSen
 //推荐系统相关api
 router.get('/api/recommend/queryLabel', api.recommend.queryLabel)
 router.post('/api/recommend/submitUserLabel', api.recommend.submitUserLabel)
+router.get('/api/recommend/recommendCourse', api.recommend.recommendCourse)
 
 
 module.exports = router
