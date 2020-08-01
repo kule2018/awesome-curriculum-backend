@@ -44,7 +44,8 @@ const emailInfo = {
    `genrsa -out rsa_private_key.pem 2048`
 3. 生成公钥
    `rsa -in rsa_private_key.pem -pubout -out rsa_public_key.pem`
-
+### 配置数据库
+根目录下有 sql 文件，直接运行该文件即可
 ### 安装依赖
 
 ```bash
